@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nina_remote/state_manager.dart';
@@ -33,6 +34,8 @@ class _ImageViewState extends ConsumerState<ImageView> {
 
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
 
+  double axisWidth = 300;
+
   @override
   Widget build(BuildContext context) {
 
@@ -44,8 +47,8 @@ class _ImageViewState extends ConsumerState<ImageView> {
           key: _refreshIndicatorKey,
           onRefresh: () => ref.refresh(capturedImageProvider.future),
           child: GridView.builder(
-            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 300, // maybe make it adjustable with a slider?
+            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: axisWidth, // maybe make it adjustable with a slider?
               childAspectRatio: 3 / 2,
               crossAxisSpacing: 0,
               mainAxisSpacing: 10,
@@ -55,17 +58,13 @@ class _ImageViewState extends ConsumerState<ImageView> {
               return GestureDetector(
                 onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => ImageViewer(image: value[index])));
-                  // TODO: open viewer page with image details
                 },
                 child: Hero(
                   tag: "clicked-image",
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Image(image: value[index].thumbnail.image),
-                  ),
+                  child: Image(image: value[index].thumbnail.image),
                 ),
               );
-            }
+            },
           ),
         ),
         floatingActionButton: isOnDesktopAndWeb ?
@@ -73,7 +72,21 @@ class _ImageViewState extends ConsumerState<ImageView> {
           onPressed: () => _refreshIndicatorKey.currentState?.show(), 
           label: const Text("Refresh"), 
           icon: const Icon(Icons.refresh_outlined),
-        ) : null
+        ) : null,
+        /* extendBody: false,
+        bottomNavigationBar: Padding(
+          padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 35.0),
+          child: SizedBox.shrink(
+            child: Slider(
+              value: axisWidth, 
+              min: 100, 
+              max: 700, 
+              onChanged: (newPos) {
+                setState(() => axisWidth = newPos);
+              }
+            ),
+          ),
+        ), */
       ),
       _ => const Center(
         child: CircularProgressIndicator(),

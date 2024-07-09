@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:nina_remote/api_helper.dart';
@@ -43,14 +44,16 @@ class ImageViewer extends StatelessWidget {
             Text("Median: ${image.median}"),
             Text("Rotator position: ${image.rotatorPosition}"),
             Text("StDev: ${image.stDev}"),
-            const SizedBox(height: 100),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => FullPhotoViewer(index: image.index)));
-              }, 
-              child: const Text("Open fullres image"),
-            ),
           ],
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ElevatedButton(
+          onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => FullPhotoViewer(index: image.index)));
+          }, 
+          child: const Text("Open fullres image"),
         ),
       ),
     );
@@ -94,7 +97,6 @@ class _FullPhotoViewerState extends State<FullPhotoViewer> {
             onPointerScroll: (event) {
               double currentScale = controller.scale!;
               double newScale = currentScale + event.scrollDelta.dy * -0.001;
-              print(newScale);
               if (newScale > 0.46) {
                 controller.scale = newScale;
               }
@@ -102,7 +104,7 @@ class _FullPhotoViewerState extends State<FullPhotoViewer> {
             child: Stack(
               children: [
                 PhotoView(
-                  enablePanAlways: false,
+                  enablePanAlways: true,
                   enableRotation: false,
                   minScale: PhotoViewComputedScale.contained * 0.8,
                   maxScale: PhotoViewComputedScale.covered * 2,
