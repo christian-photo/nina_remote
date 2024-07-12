@@ -1,6 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nina_remote/core/api/api_helper.dart';
 import 'package:nina_remote/state_manager.dart';
 import 'package:nina_remote/util.dart';
 import 'package:nina_remote/views/detail_image_viewer.dart';
@@ -10,17 +10,39 @@ class CapturedImage {
   final int index;
   final int stars;
   final String filter;
-  final double rotatorPosition;
+  final int gain;
+  final int offset;
   final double median;
-  final double rms;
   final String rmsText;
   final double hfr;
   final double exposureTime;
   final double stDev;
   final double mean;
   final DateTime date;
+  final double temperature;
+  final String cameraName;
+  final String telescopeName;
+  final double focalLength;
 
-  CapturedImage(this.thumbnail, this.index, this.stars, this.filter, this.rotatorPosition, this.median, this.rms, this.rmsText, this.hfr, this.exposureTime, this.stDev, this.mean, this.date);
+  CapturedImage(
+    this.thumbnail, 
+    this.index, 
+    this.stars, 
+    this.filter, 
+    this.gain,
+    this.offset,
+    this.median, 
+    this.rmsText, 
+    this.hfr, 
+    this.exposureTime, 
+    this.stDev, 
+    this.mean, 
+    this.date,
+    this.temperature,
+    this.cameraName,
+    this.telescopeName,
+    this.focalLength
+  );
 }
 
 class ImageView extends ConsumerStatefulWidget {
@@ -36,61 +58,89 @@ class _ImageViewState extends ConsumerState<ImageView> {
 
   double axisWidth = 300;
 
+  void socketRecieved(Map<String, dynamic> response) async {
+    response = response["Response"];
+    if (response["Event"] == "IMAGE-SAVE") {
+      CapturedImage image = CapturedImage(
+        await ApiHelper.getThumbnail(response["Index"].toString()),
+        response["Index"],
+        response["Stars"],
+        response["Filter"],
+        response["Gain"],
+        response["Offset"],
+        response["Median"],
+        response["RmsText"],
+        response["HFR"],
+        response["ExposureTime"],
+        response["StDev"],
+        response["Mean"],
+        DateTime.parse(response["Date"]),
+        double.parse(response["Temperature"]),
+        response["CameraName"],
+        response["TelescopeName"],
+        response["FocalLength"],
+      );
+      ref.read(capturedImagesProvider.notifier).state = [...ref.read(capturedImagesProvider), image];
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    ApiHelper.addListener(socketRecieved);
+  }
+
   @override
   Widget build(BuildContext context) {
 
-    final provider = ref.watch(capturedImageProvider);
+    final images = ref.watch(capturedImagesProvider);
 
-    return switch (provider) {
-      AsyncData(:final value) => Scaffold(
-        body: RefreshIndicator.adaptive(
-          key: _refreshIndicatorKey,
-          onRefresh: () => ref.refresh(capturedImageProvider.future),
-          child: GridView.builder(
-            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: axisWidth, // maybe make it adjustable with a slider?
-              childAspectRatio: 3 / 2,
-              crossAxisSpacing: 0,
-              mainAxisSpacing: 10,
-            ), 
-            itemCount: value.length,
-            itemBuilder: (context, index) {
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => ImageViewer(image: value[index])));
-                },
-                child: Hero(
-                  tag: "clicked-image",
-                  child: Image(image: value[index].thumbnail.image),
-                ),
-              );
-            },
+    return Scaffold(
+      body: RefreshIndicator.adaptive(
+        key: _refreshIndicatorKey,
+        onRefresh: () => ref.refresh(refreshImageProvider.future),
+        child: GridView.builder(
+          gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: axisWidth, // maybe make it adjustable with a slider?
+            childAspectRatio: 3 / 2,
+            crossAxisSpacing: 0,
+            mainAxisSpacing: 10,
+          ), 
+          itemCount: images.length,
+          itemBuilder: (context, index) {
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => ImageViewer(image: images[index])));
+              },
+              child: Hero(
+                tag: images[index].index,
+                child: Image(image: images[index].thumbnail.image),
+              ),
+            );
+          },
+        ),
+      ),
+      floatingActionButton: isOnDesktopAndWeb ?
+        FloatingActionButton.extended(
+        onPressed: () => _refreshIndicatorKey.currentState?.show(), 
+        label: const Text("Refresh"), 
+        icon: const Icon(Icons.refresh_outlined),
+      ) : null,
+      /* extendBody: false,
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 35.0),
+        child: SizedBox.shrink(
+          child: Slider(
+            value: axisWidth, 
+            min: 100, 
+            max: 700, 
+            onChanged: (newPos) {
+              setState(() => axisWidth = newPos);
+            }
           ),
         ),
-        floatingActionButton: isOnDesktopAndWeb ?
-          FloatingActionButton.extended(
-          onPressed: () => _refreshIndicatorKey.currentState?.show(), 
-          label: const Text("Refresh"), 
-          icon: const Icon(Icons.refresh_outlined),
-        ) : null,
-        /* extendBody: false,
-        bottomNavigationBar: Padding(
-          padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 35.0),
-          child: SizedBox.shrink(
-            child: Slider(
-              value: axisWidth, 
-              min: 100, 
-              max: 700, 
-              onChanged: (newPos) {
-                setState(() => axisWidth = newPos);
-              }
-            ),
-          ),
-        ), */
-      ),
-      _ => const Center(
-        child: CircularProgressIndicator(),
-      ),
-    };
+      ), */
+    );
   }
 }

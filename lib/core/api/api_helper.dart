@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:nina_remote/views/image_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:websocket_universal/websocket_universal.dart';
 
@@ -9,7 +10,7 @@ class ApiHelper {
 
   static bool _isConnected = false;
   static IWebSocketHandler? socket;
-  static final List<Function(dynamic)> _listeners = [];
+  static final List<Function(Map<String, dynamic>)> _listeners = [];
 
   static Future<(String, String)> _getIpAndPort() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -43,12 +44,54 @@ class ApiHelper {
     return jsonDecode(await get('http://$ip:$port/api/history?property=count'))["Response"]["Count"] ?? 0;
   }
 
+  static Future<int> getSocketImageCount() async {
+    var (ip, port) = await _getIpAndPort();
+    return jsonDecode(await get('http://$ip:$port/api/socket-history?property=count'))["Response"]["Count"] ?? 0;
+  }
+
+  static Future<CapturedImage> getSocketImage(int index) async {
+    var (ip, port) = await _getIpAndPort();
+    Map<String, dynamic> response = jsonDecode(await get('http://$ip:$port/api/socket-history?property=list&parameter=$index'));
+    response = response["Response"];
+    Image thumb = await getThumbnail(index.toString());
+    return CapturedImage(
+      thumb, 
+      response["Index"],
+      response["Stars"],
+      response["Filter"],
+      response["Gain"],
+      response["Offset"],
+      response["Median"],
+      response["RmsText"],
+      response["HFR"],
+      response["ExposureTime"],
+      response["StDev"],
+      response["Mean"],
+      DateTime.parse(response["Date"]),
+      double.parse(response["Temperature"]),
+      response["CameraName"],
+      response["TelescopeName"],
+      response["FocalLength"],
+    );
+  }
+
   static Future<List<Image>> getThumbnails() async {
     int count = await getImageCount();
 
     List<Image> images = [];
     for (int i = 0; i < count; i++) {
       images.add(await getThumbnail(i.toString()));
+    }
+
+    return images;
+  }
+
+  static Future<List<CapturedImage>> getCapturedImages() async {
+    List<CapturedImage> images = [];
+    int count = await getImageCount();
+
+    for (int i = 0; i < count; i++) {
+      images.add(await getSocketImage(i));
     }
 
     return images;
@@ -62,14 +105,14 @@ class ApiHelper {
   }
 
   static Future<Image> getThumbnail(String index) async {
-    return await getImage(index, 10);
+    return await getImage(index, 30);
   }
 
-  static void addListener(Function(dynamic) listener) {
+  static void addListener(Function(Map<String, dynamic>) listener) {
     _listeners.add(listener);
   }
 
-  static void removeListener(Function(dynamic) listener) {
+  static void removeListener(Function(Map<String, dynamic>) listener) {
     _listeners.remove(listener);
   }
 
@@ -90,14 +133,16 @@ class ApiHelper {
     }
     
     try {
-      socket = IWebSocketHandler.createClient('ws://$ip:$port/socket', SocketSimpleTextProcessor());
-      socket?.incomingMessagesStream.listen((event) {
-        for (Function(dynamic) listener in _listeners) {
-          listener(event);
-        }
-      });
+      socket = IWebSocketHandler.createClient('ws://$ip:$port/socket', SocketSimpleTextProcessor(), connectionOptions: const SocketConnectionOptions(failedReconnectionAttemptsLimit: 3));
     
       await socket?.connect();
+
+      socket?.incomingMessagesStream.listen((event) {
+        Map<String, dynamic> json = jsonDecode(event);
+        for (Function(Map<String, dynamic>) listener in _listeners) {
+          listener(json);
+        }
+      });
     }
     catch (e) {
       // TODO: show error using local notification

@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:nina_remote/api_helper.dart';
+import 'package:nina_remote/core/api/api_helper.dart';
 import 'package:nina_remote/views/image_view.dart';
 import 'package:photo_view/photo_view.dart';
 
@@ -21,7 +21,7 @@ class ImageViewer extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(30.0),
                   child: Hero(
-                    tag: "clicked-image",
+                    tag: image.index,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(10),
                       child: Image(image: image.thumbnail.image),
@@ -35,14 +35,13 @@ class ImageViewer extends StatelessWidget {
               ],
             ),
             Text("Exposure time: ${image.exposureTime}"),
-            Text("Rms: ${image.rms}"),
+            Text(image.rmsText),
             Text("HFR: ${image.hfr}"),
             Text("Stars: ${image.stars}"),
             Text("Filter: ${image.filter}"),
             Text("Date: ${image.date}"),
             Text("Mean: ${image.mean}"),
             Text("Median: ${image.median}"),
-            Text("Rotator position: ${image.rotatorPosition}"),
             Text("StDev: ${image.stDev}"),
           ],
         ),

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nina_remote/core/api/api_helper.dart';
 import 'package:nina_remote/state_manager.dart';
 import 'package:nina_remote/util.dart';
 
@@ -24,12 +25,17 @@ class CameraInfo {
   static CameraInfo fromJson(String responseString) {
     Map<String, dynamic> json = jsonDecode(responseString);
     json = json["Response"];
+
+    if (!json["Connected"]) {
+      return empty();
+    }
+
     return CameraInfo(
       json['DisplayName'] ?? 'No name',
       json['IsExposing'] ?? false,
-      json['CoolerPower'] ?? double.nan,
+      double.parse(json['CoolerPower']),
       json['DewHeaterOn'] ?? false,
-      json['Temperature'] ?? double.nan,
+      double.parse(json['Temperature']),
       json['Connected'] ?? false,
       DateTime.parse(json['ExposureEndTime'] ?? '1970-01-01T00:00:00Z'),
       json['Battery'] ?? -1,
@@ -49,6 +55,22 @@ class CameraView extends ConsumerStatefulWidget {
 class _CameraViewState extends ConsumerState<CameraView> {
 
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
+
+  void cameraRecieved(Map<String, dynamic> response) {
+    response = response["Response"];
+    print(response);
+    if (response["Event"] == "CAMERA-CONNECTION") {
+      Future.delayed(const Duration(milliseconds: 100));
+      _refreshIndicatorKey.currentState?.show();
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    
+    ApiHelper.addListener(cameraRecieved);
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:nina_remote/api_helper.dart';
+import 'package:nina_remote/core/api/api_helper.dart';
 import 'package:nina_remote/views/equipment_view.dart';
 import 'package:nina_remote/views/image_view.dart';
+import 'package:websocket_universal/websocket_universal.dart';
 
 import 'main.dart';
 
@@ -12,10 +13,10 @@ class HomeViewPage extends StatefulWidget {
   final String port;
 
   @override
-  State<HomeViewPage> createState() => __HomeViewPagStateState();
+  State<HomeViewPage> createState() => _HomeViewPagStateState();
 }
 
-class __HomeViewPagStateState extends State<HomeViewPage> {
+class _HomeViewPagStateState extends State<HomeViewPage> {
 
   late final Future connectFuture;
 
@@ -25,6 +26,14 @@ class __HomeViewPagStateState extends State<HomeViewPage> {
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const ConnectPage()));
       }
     }
+
+    ApiHelper.socket?.socketHandlerStateStream.listen((event) {
+      if (event.status == SocketStatus.disconnected) {
+        if (mounted) {
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const ConnectPage()));
+        }
+      }
+    });
   }
 
   late final List<Widget> views;
