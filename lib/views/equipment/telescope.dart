@@ -47,7 +47,7 @@ class TelescopeView extends ConsumerStatefulWidget {
   ConsumerState<TelescopeView> createState() => _TelescopeViewState();
 }
 
-class _TelescopeViewState extends ConsumerState<TelescopeView> {
+class _TelescopeViewState extends ConsumerState<TelescopeView> with AutomaticKeepAliveClientMixin {
 
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
   Timer? _timer;
@@ -61,9 +61,11 @@ class _TelescopeViewState extends ConsumerState<TelescopeView> {
   }
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   void initState() {
     super.initState();
-    
     ApiHelper.addListener(telescopeRecieved);
     _timer = Timer.periodic(const Duration(seconds: 5), (timer) => ref.refresh(telescopeInfoProvider.future));
   }
@@ -78,6 +80,7 @@ class _TelescopeViewState extends ConsumerState<TelescopeView> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final provider = ref.watch(telescopeInfoProvider);
 
     return switch (provider) {

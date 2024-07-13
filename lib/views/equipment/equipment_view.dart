@@ -10,7 +10,7 @@ class EquipmentView extends StatefulWidget {
   State<EquipmentView> createState() => _EquipmentViewState();
 }
 
-class _EquipmentViewState extends State<EquipmentView> with TickerProviderStateMixin {
+class _EquipmentViewState extends State<EquipmentView> with SingleTickerProviderStateMixin {
 
   late final List<Widget> equipmentViews;
 

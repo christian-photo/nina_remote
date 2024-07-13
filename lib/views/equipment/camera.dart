@@ -54,7 +54,7 @@ class CameraView extends ConsumerStatefulWidget {
   ConsumerState<CameraView> createState() => _CameraViewState();
 }
 
-class _CameraViewState extends ConsumerState<CameraView> {
+class _CameraViewState extends ConsumerState<CameraView> with AutomaticKeepAliveClientMixin{
 
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
   Timer? _timer;
@@ -68,9 +68,11 @@ class _CameraViewState extends ConsumerState<CameraView> {
   }
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   void initState() {
     super.initState();
-
     ApiHelper.addListener(cameraRecieved);
     _timer = Timer.periodic(const Duration(seconds: 10), (timer) => ref.refresh(cameraInfoProvider.future));
   }
@@ -84,7 +86,7 @@ class _CameraViewState extends ConsumerState<CameraView> {
 
   @override
   Widget build(BuildContext context) {
-
+    super.build(context);
     final provider = ref.watch(cameraInfoProvider);
 
     return switch (provider) {
