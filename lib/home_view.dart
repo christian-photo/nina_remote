@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:nina_remote/core/api/api_helper.dart';
-import 'package:nina_remote/views/equipment_view.dart';
-import 'package:nina_remote/views/image_view.dart';
+import 'package:nina_remote/views/equipment/equipment_view.dart';
+import 'package:nina_remote/views/image/image_view.dart';
+import 'package:nina_remote/views/timeline/timeline_view.dart';
 import 'package:websocket_universal/websocket_universal.dart';
 
 import 'main.dart';
@@ -39,13 +40,17 @@ class _HomeViewPagStateState extends State<HomeViewPage> {
   late final List<Widget> views;
   int viewIndex = 0;
 
+  final EquipmentView _equipmentView = const EquipmentView();
+  final ImageView _imageView = const ImageView();
+  final TimelineView _timelineView = const TimelineView();
+
   @override
   void initState() {
     super.initState();
 
     connectFuture = connect();
 
-    views = [const EquipmentView(), const ImageView(), const Text("hio0ihids0fhsdifh0sh"), const Text("Timeline view")];
+    views = [_equipmentView, _imageView, const Text("hio0ihids0fhsdifh0sh"), _timelineView];
 
     viewIndex = 0;
   }
@@ -85,7 +90,12 @@ class _HomeViewPagStateState extends State<HomeViewPage> {
                     NavigationRailDestination(icon: Icon(Icons.timeline_outlined), label: Text("Timeline")),
                   ],
                 ),
-                Expanded(child: views[viewIndex]),
+                Expanded(
+                  child: IndexedStack(
+                    index: viewIndex,
+                    children: views,
+                  ),
+                ),
               ],
             ),
           ),

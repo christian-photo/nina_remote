@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:nina_remote/views/image_view.dart';
+import 'package:nina_remote/views/image/image_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:websocket_universal/websocket_universal.dart';
 
@@ -145,7 +145,6 @@ class ApiHelper {
       });
     }
     catch (e) {
-      // TODO: show error using local notification
       _isConnected = false;
       return _isConnected;
     }

@@ -18,18 +18,20 @@ class _EquipmentViewState extends State<EquipmentView> with TickerProviderStateM
   late TabController tabController;
   int currentPageIndex = 0;
 
+  final CameraView cameraView = const CameraView();
+  final TelescopeView telescopeView = const TelescopeView();
+
   @override
   void initState() {
     super.initState();
 
     equipmentViews = [
-      const CameraView(),
-      const TelescopeView(),
+      cameraView,
+      telescopeView,
     ];
 
     pageController = PageController();
     tabController = TabController(length: equipmentViews.length, vsync: this);
-    // TODO: init EquipmentViews
   }
 
   @override

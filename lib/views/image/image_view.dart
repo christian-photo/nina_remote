@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nina_remote/core/api/api_helper.dart';
 import 'package:nina_remote/state_manager.dart';
 import 'package:nina_remote/util.dart';
-import 'package:nina_remote/views/detail_image_viewer.dart';
+import 'package:nina_remote/views/image/detail_image_viewer.dart';
 
 class CapturedImage {
   final Image thumbnail;
@@ -89,6 +89,12 @@ class _ImageViewState extends ConsumerState<ImageView> {
     super.initState();
 
     ApiHelper.addListener(socketRecieved);
+  }
+
+  @override
+  void dispose() {
+    ApiHelper.removeListener(socketRecieved);
+    super.dispose();
   }
 
   @override

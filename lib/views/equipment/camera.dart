@@ -70,7 +70,7 @@ class _CameraViewState extends ConsumerState<CameraView> {
   @override
   void initState() {
     super.initState();
-    
+
     ApiHelper.addListener(cameraRecieved);
     _timer = Timer.periodic(const Duration(seconds: 10), (timer) => ref.refresh(cameraInfoProvider.future));
   }

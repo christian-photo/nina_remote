@@ -2,7 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:nina_remote/core/api/api_helper.dart';
-import 'package:nina_remote/views/image_view.dart';
+import 'package:nina_remote/views/image/image_view.dart';
 import 'package:photo_view/photo_view.dart';
 
 class ImageViewer extends StatelessWidget {
