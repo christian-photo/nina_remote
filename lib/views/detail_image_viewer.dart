@@ -1,6 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:nina_remote/core/api/api_helper.dart';
 import 'package:nina_remote/views/image_view.dart';
 import 'package:photo_view/photo_view.dart';
@@ -39,7 +39,7 @@ class ImageViewer extends StatelessWidget {
             Text("HFR: ${image.hfr}"),
             Text("Stars: ${image.stars}"),
             Text("Filter: ${image.filter}"),
-            Text("Date: ${image.date}"),
+            Text("Date: ${DateFormat('HH:mm:ss').format(image.date)}"),
             Text("Mean: ${image.mean}"),
             Text("Median: ${image.median}"),
             Text("StDev: ${image.stDev}"),
@@ -109,7 +109,7 @@ class _FullPhotoViewerState extends State<FullPhotoViewer> {
                   maxScale: PhotoViewComputedScale.covered * 2,
                   controller: controller,
                   filterQuality: FilterQuality.high,
-                  heroAttributes: const PhotoViewHeroAttributes(tag: "clicked-image"),
+                  heroAttributes: PhotoViewHeroAttributes(tag: widget.index),
                   imageProvider: image.image,
                 ),
                 IconButton(

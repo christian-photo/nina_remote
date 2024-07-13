@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nina_remote/views/equipment/camera.dart';
 import 'package:nina_remote/util.dart';
+import 'package:nina_remote/views/equipment/telescope.dart';
 
 class EquipmentView extends StatefulWidget {
   const EquipmentView({super.key});
@@ -22,7 +23,8 @@ class _EquipmentViewState extends State<EquipmentView> with TickerProviderStateM
     super.initState();
 
     equipmentViews = [
-      const CameraView()
+      const CameraView(),
+      const TelescopeView(),
     ];
 
     pageController = PageController();

@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:nina_remote/core/api/api_helper.dart';
 import 'package:nina_remote/state_manager.dart';
 import 'package:nina_remote/util.dart';
@@ -55,10 +57,10 @@ class CameraView extends ConsumerStatefulWidget {
 class _CameraViewState extends ConsumerState<CameraView> {
 
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
+  Timer? _timer;
 
   void cameraRecieved(Map<String, dynamic> response) {
     response = response["Response"];
-    print(response);
     if (response["Event"] == "CAMERA-CONNECTION") {
       Future.delayed(const Duration(milliseconds: 100));
       _refreshIndicatorKey.currentState?.show();
@@ -70,6 +72,14 @@ class _CameraViewState extends ConsumerState<CameraView> {
     super.initState();
     
     ApiHelper.addListener(cameraRecieved);
+    _timer = Timer.periodic(const Duration(seconds: 10), (timer) => ref.refresh(cameraInfoProvider.future));
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    ApiHelper.removeListener(cameraRecieved);
+    super.dispose();
   }
 
   @override
@@ -109,7 +119,7 @@ class _CameraViewState extends ConsumerState<CameraView> {
                     Icon(value.connected ? Icons.check : Icons.close),
                   ],
                 ),
-                Text("Last Exposure: ${value.lastExposure}"),
+                Text("Last Exposure: ${DateFormat('HH:mm:ss').format(value.lastExposure)}"),
                 Text("Battery: ${value.battery}"),
                 Text("Offset: ${value.offset}"),
                 Text("Gain: ${value.gain}"),
