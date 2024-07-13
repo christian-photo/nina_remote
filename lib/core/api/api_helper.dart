@@ -24,6 +24,11 @@ class ApiHelper {
     return response.body;
   }
 
+  static Future<String> set(String url, String body) async {
+    var response = await http.post(Uri.parse(url), body: body);
+    return response.body;
+  }
+
   static Future<String> getEquipment(String property, [String parameter = '', String index = '']) async {
     var (ip, port) = await _getIpAndPort();
     return get('http://$ip:$port/api/equipment?property=$property&parameter=$parameter&index=$index');
@@ -95,6 +100,13 @@ class ApiHelper {
     }
 
     return images;
+  }
+
+  static Future<Image> getScreenshot() async {
+    var (ip, port) = await _getIpAndPort();
+    Map<String, dynamic> response = jsonDecode(await set('http://$ip:$port/api/equipment', '{"Device":"application", "Action":"screenshot"}'));
+    String image = response["Response"] ?? '';
+    return Image.memory(base64Decode(image));
   }
 
   static Future<Image> getImage(String index, [int quality=-1]) async {

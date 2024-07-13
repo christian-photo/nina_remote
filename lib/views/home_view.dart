@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:nina_remote/core/api/api_helper.dart';
+import 'package:nina_remote/views/application/application_view.dart';
 import 'package:nina_remote/views/equipment/equipment_view.dart';
 import 'package:nina_remote/views/image/image_view.dart';
 import 'package:nina_remote/views/timeline/timeline_view.dart';
 import 'package:websocket_universal/websocket_universal.dart';
 
-import 'main.dart';
+import '../main.dart';
 
 class HomeViewPage extends StatefulWidget {
   const HomeViewPage({super.key, required this.ip, required this.port});
@@ -43,6 +44,7 @@ class _HomeViewPagStateState extends State<HomeViewPage> {
   final EquipmentView _equipmentView = const EquipmentView();
   final ImageView _imageView = const ImageView();
   final TimelineView _timelineView = const TimelineView();
+  final ApplicationView _applicationView = ApplicationView();
 
   @override
   void initState() {
@@ -50,7 +52,7 @@ class _HomeViewPagStateState extends State<HomeViewPage> {
 
     connectFuture = connect();
 
-    views = [_equipmentView, _imageView, const Text("hio0ihids0fhsdifh0sh"), _timelineView];
+    views = [_equipmentView, _imageView, _applicationView, _timelineView];
 
     viewIndex = 0;
   }
@@ -79,6 +81,12 @@ class _HomeViewPagStateState extends State<HomeViewPage> {
                   selectedIndex: viewIndex,
                   labelType: NavigationRailLabelType.selected,
                   onDestinationSelected: (value) {
+                    if (value != viewIndex && viewIndex == 2) {
+                      _applicationView.shouldPause = true;
+                    }
+                    else if (value == 2 && viewIndex != 2) {
+                      _applicationView.shouldPause = false;
+                    }
                     setState(() {
                       viewIndex = value;
                     });

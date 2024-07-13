@@ -46,7 +46,7 @@ class EventTile extends StatelessWidget {
               event.name,
             ),
             const SizedBox(
-              height: 60,
+              height: 50,
             ),
           ],
         ),
