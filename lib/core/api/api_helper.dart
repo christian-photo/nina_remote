@@ -117,7 +117,8 @@ class ApiHelper {
   }
 
   static Future<Image> getThumbnail(String index) async {
-    return await getImage(index, 30);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return await getImage(index, prefs.getInt('thumbnail-quality') ?? 40);
   }
 
   static void addListener(Function(Map<String, dynamic>) listener) {
