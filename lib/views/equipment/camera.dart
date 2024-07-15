@@ -61,6 +61,7 @@ class _CameraViewState extends ConsumerState<CameraView> with AutomaticKeepAlive
 
   void cameraRecieved(Map<String, dynamic> response) {
     response = response["Response"];
+    print(response);
     if (response["Event"] == "CAMERA-CONNECTION") {
       Future.delayed(const Duration(milliseconds: 100));
       _refreshIndicatorKey.currentState?.show();

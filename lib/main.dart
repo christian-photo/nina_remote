@@ -29,6 +29,7 @@ class MyApp extends StatelessWidget {
       theme: FlexThemeData.light(
         scheme: FlexScheme.bigStone,
         surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
+        fontFamily: 'Poppins',
         blendLevel: 7,
         subThemesData: const FlexSubThemesData(
           blendOnLevel: 10,
@@ -48,6 +49,7 @@ class MyApp extends StatelessWidget {
         scheme: FlexScheme.bigStone,
         surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
         blendLevel: 13,
+        fontFamily: 'Poppins',
         subThemesData: const FlexSubThemesData(
           blendOnLevel: 20,
           useTextTheme: true,
@@ -133,16 +135,7 @@ class _ConnectPageState extends State<ConnectPage> {
             child: FrostedCard(
               frost: 5,
               borderRadius: 10,
-              decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(.2),
-                    spreadRadius: 3,
-                    blurRadius: 5,
-                    offset: const Offset(3, 3),
-                  )
-                ]
-              ),
+              opacity: .13,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,

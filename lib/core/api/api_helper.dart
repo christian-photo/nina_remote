@@ -102,6 +102,19 @@ class ApiHelper {
     return images;
   }
 
+  static void refreshEventHistory() async {
+    var (ip, port) = await _getIpAndPort();
+
+    Map<String, dynamic> res = jsonDecode(await get('http://$ip:$port/api/socket-history?property=events'));
+    List<dynamic> events = res["Response"];
+    for (var i = 0; i < events.length; i++) {
+      Map<String, dynamic> event = { "Response": events[i] };
+      for (var listener in _listeners) {
+        listener(event);
+      }
+    }
+  }
+
   static Future<Image> getScreenshot() async {
     var (ip, port) = await _getIpAndPort();
     Map<String, dynamic> response = jsonDecode(await set('http://$ip:$port/api/equipment', '{"Device":"application", "Action":"screenshot"}'));

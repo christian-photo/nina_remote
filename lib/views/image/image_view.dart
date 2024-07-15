@@ -129,9 +129,10 @@ class _ImageViewState extends ConsumerState<ImageView> {
       ),
       floatingActionButton: isOnDesktopAndWeb ?
         FloatingActionButton.extended(
-        onPressed: () => _refreshIndicatorKey.currentState?.show(), 
-        label: const Text("Refresh"), 
-        icon: const Icon(Icons.refresh_outlined),
+          heroTag: "test",
+          onPressed: () => _refreshIndicatorKey.currentState?.show(), 
+          label: const Text("Refresh"), 
+          icon: const Icon(Icons.refresh_outlined),
       ) : null,
       /* extendBody: false,
       bottomNavigationBar: Padding(

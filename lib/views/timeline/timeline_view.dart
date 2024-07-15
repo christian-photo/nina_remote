@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nina_remote/core/api/api_helper.dart';
 import 'package:nina_remote/state_manager.dart';
 import 'package:nina_remote/views/timeline/event_tile.dart';
 
@@ -27,7 +28,7 @@ class _TimelineViewState extends ConsumerState<TimelineView> {
             }),
           ],
         ),
-      )
+      ),
     );
   }
 }
