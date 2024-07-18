@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:nina_remote/core/api/api_helper.dart';
+import 'package:nina_remote/core/api/nina_event.dart';
 import 'package:nina_remote/state_manager.dart';
 import 'package:nina_remote/util.dart';
 
@@ -59,12 +60,20 @@ class _CameraViewState extends ConsumerState<CameraView> with AutomaticKeepAlive
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
   Timer? _timer;
 
-  void cameraRecieved(Map<String, dynamic> response) {
+  void cameraRecieved(Map<String, dynamic> response) async {
     response = response["Response"];
-    print(response);
     if (response["Event"] == "CAMERA-CONNECTION") {
+      CameraInfo oldInfo = await ref.read(cameraInfoProvider.future);
       Future.delayed(const Duration(milliseconds: 100));
-      _refreshIndicatorKey.currentState?.show();
+      CameraInfo newInfo = await ref.refresh(cameraInfoProvider.future);
+      if (oldInfo.connected != newInfo.connected) {
+        if (newInfo.connected) {
+          addEvent(NINAEvent("${newInfo.name} Connected", DateTime.parse(response["Time"]), color: Colors.green), ref);
+        }
+        else {
+          addEvent(NINAEvent("${oldInfo.name} Disconnected", DateTime.parse(response["Time"]), color: Colors.red), ref);
+        }
+      }
     }
   }
 

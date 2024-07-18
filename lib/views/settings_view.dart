@@ -51,7 +51,7 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            Text("Settings", style: Theme.of(context).textTheme.headlineMedium, textAlign: TextAlign.center,),
+            Center(child: Text("Settings", style: Theme.of(context).textTheme.headlineMedium,)),
             Row(
               children: [
                 const Text("Thumbnail quality: "),

@@ -10,9 +10,6 @@ void main() {
   runApp(const ProviderScope(child: OverlaySupport(child: MyApp())));
 }
 
-
-// TODO: Use https://pub.dev/packages/awesome_notifications for notifications.
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 

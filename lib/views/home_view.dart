@@ -99,6 +99,18 @@ class _HomeViewPagStateState extends State<HomeViewPage> {
                   onDestinationSelected: (value) {
                     changePage(value);
                   },
+                  trailing: Expanded(
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: IconButton(
+                        onPressed: () {
+                          ApiHelper.disconnect();
+                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const ConnectPage()));
+                        }, 
+                        icon: const Icon(Icons.logout_outlined, color: Colors.red,),
+                      ),
+                    ),
+                  ),
                   destinations: const [
                     NavigationRailDestination(icon: Icon(Icons.camera_alt_outlined), label: Text("Equipment")),
                     NavigationRailDestination(icon: Icon(Icons.image_outlined), label: Text("Image")),

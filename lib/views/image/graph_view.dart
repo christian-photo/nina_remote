@@ -1,32 +1,70 @@
+import 'dart:math';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nina_remote/state_manager.dart';
 
-class GraphView extends ConsumerStatefulWidget {
-  const GraphView({super.key});
+class Graph extends StatelessWidget {
+  const Graph({super.key, required this.data, required this.topMargin, List<Color>? gradient}) : gradientColors = gradient ?? const [Colors.cyan, Colors.blue];
 
-  @override
-  ConsumerState<GraphView> createState() => _GraphViewState();
-}
+  final List<double> data;
+  final int topMargin;
 
-class _GraphViewState extends ConsumerState<GraphView> {
+  final List<Color> gradientColors;
+
   @override
   Widget build(BuildContext context) {
-
-    final provider = ref.watch(capturedImagesProvider);
-
-    return Scaffold(
-      body: Padding(
-        padding: EdgeInsets.all(8),
-        child: Column(
-          children: [
-            LineChart(
-              LineChartData()
-            )
-          ],
+    return LineChart(
+      LineChartData(
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: true,
+          horizontalInterval: topMargin.toDouble(),
+          verticalInterval: 1,
+          getDrawingHorizontalLine: (value) => const FlLine(
+            color: Colors.grey,
+            strokeWidth: 1,
+          ),
+          getDrawingVerticalLine: (value) => const FlLine(
+            color: Colors.grey,
+            strokeWidth: 1
+          ),
         ),
-      )
+        titlesData: const FlTitlesData(
+          rightTitles: AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          topTitles: AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+        ),
+        borderData: FlBorderData(
+          show: true,
+          border: Border.all(color: const Color(0xff37434d)),
+        ),
+        minX: 0,
+        maxX: data.length.toDouble() - 1,
+        minY: 0,
+        maxY: data.isNotEmpty ? (data.reduce(max) + topMargin).roundToDouble() : 10,
+        lineBarsData: [
+          LineChartBarData(
+            spots: List.generate(
+              data.length, 
+              (index) {
+                return FlSpot(index.toDouble(), data[index]);
+              },
+            ),
+            isCurved: true,
+            gradient: LinearGradient(
+              colors: gradientColors,
+            ),
+            barWidth: 3,
+            isStrokeCapRound: true,
+            dotData: const FlDotData(
+              show: true,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

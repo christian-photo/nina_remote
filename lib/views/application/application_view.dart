@@ -50,7 +50,13 @@ class _ApplicationViewState extends State<ApplicationView> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           return Scaffold(
-            body: Image(image: _image,),
+            body: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image(image: _image,),
+              ),
+            ),
             floatingActionButton: Padding(
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(

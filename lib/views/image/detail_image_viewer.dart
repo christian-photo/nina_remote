@@ -36,13 +36,13 @@ class ImageViewer extends StatelessWidget {
             ),
             Text("Exposure time: ${image.exposureTime}"),
             Text(image.rmsText),
-            Text("HFR: ${image.hfr}"),
+            Text("HFR: ${image.hfr.toStringAsFixed(3)}"),
             Text("Stars: ${image.stars}"),
             Text("Filter: ${image.filter}"),
             Text("Date: ${DateFormat('HH:mm:ss').format(image.date)}"),
-            Text("Mean: ${image.mean}"),
+            Text("Mean: ${image.mean.toStringAsFixed(3)}"),
             Text("Median: ${image.median}"),
-            Text("StDev: ${image.stDev}"),
+            Text("StDev: ${image.stDev.toStringAsFixed(3)}"),
           ],
         ),
       ),
@@ -96,9 +96,7 @@ class _FullPhotoViewerState extends State<FullPhotoViewer> {
             onPointerScroll: (event) {
               double currentScale = controller.scale!;
               double newScale = currentScale + event.scrollDelta.dy * -0.001;
-              if (newScale > 0.46) {
-                controller.scale = newScale;
-              }
+              controller.scale = newScale;
             },
             child: Stack(
               children: [
@@ -106,7 +104,7 @@ class _FullPhotoViewerState extends State<FullPhotoViewer> {
                   enablePanAlways: true,
                   enableRotation: false,
                   minScale: PhotoViewComputedScale.contained * 0.8,
-                  maxScale: PhotoViewComputedScale.covered * 2,
+                  maxScale: PhotoViewComputedScale.covered * 3,
                   controller: controller,
                   filterQuality: FilterQuality.high,
                   heroAttributes: PhotoViewHeroAttributes(tag: widget.index),

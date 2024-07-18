@@ -19,23 +19,15 @@ class _TimelineOnlyEventsState extends ConsumerState<TimelineOnlyEvents> {
     responseJson = responseJson["Response"];
 
     if (responseJson["Event"] == "NINA-ADV-SEQ-START") {
-      ref.read(eventsProvider.notifier).state = [
-        ...ref.read(eventsProvider), 
-        NINAEvent("Advanced Sequence Started", DateTime.now(), color: Colors.blue),
-      ];
+      addEvent(NINAEvent("Advanced Sequence Started", DateTime.now(), color: Colors.blue), ref);
     }
     else if (responseJson["Event"] == "NINA-ADV-SEQ-STOP") {
-      ref.read(eventsProvider.notifier).state = [
-        ...ref.read(eventsProvider), 
-        NINAEvent("Advanced Sequence Stopped", DateTime.now(), color: Colors.orange),
-      ];
+      addEvent(NINAEvent("Advanced Sequence Stopped", DateTime.now(), color: Colors.orange), ref);
     }
     else if (responseJson["Event"] == "NINA-ERROR-AF") {
-      ref.read(eventsProvider.notifier).state = [
-        ...ref.read(eventsProvider), 
-        NINAEvent("Autofocus failed!", DateTime.now(), color: Colors.red),
-      ];
+      addEvent(NINAEvent("Autofocus failed!", DateTime.now(), color: Colors.red), ref);
     }
+    
   }
 
   @override
