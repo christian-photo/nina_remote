@@ -24,7 +24,7 @@ class ApiHelper {
     return response.body;
   }
 
-  static Future<String> set(String url, String body) async {
+  static Future<String> post(String url, String body) async {
     var response = await http.post(Uri.parse(url), body: body);
     return response.body;
   }
@@ -117,7 +117,7 @@ class ApiHelper {
 
   static Future<Image> getScreenshot() async {
     var (ip, port) = await _getIpAndPort();
-    Map<String, dynamic> response = jsonDecode(await set('http://$ip:$port/api/equipment', '{"Device":"application", "Action":"screenshot"}'));
+    Map<String, dynamic> response = jsonDecode(await post('http://$ip:$port/api/equipment', _postBuilder("application", "screenshot", [])));
     String image = response["Response"] ?? '';
     return Image.memory(base64Decode(image));
   }
@@ -159,23 +159,74 @@ class ApiHelper {
     }
     
     try {
-      socket = IWebSocketHandler.createClient('ws://$ip:$port/socket', SocketSimpleTextProcessor(), connectionOptions: const SocketConnectionOptions(failedReconnectionAttemptsLimit: 3));
+      socket = IWebSocketHandler.createClient('ws://$ip:$port/socket', SocketSimpleTextProcessor(), connectionOptions: const SocketConnectionOptions(failedReconnectionAttemptsLimit: 3,));
     
       await socket?.connect();
 
-      socket?.incomingMessagesStream.listen((event) {
-        Map<String, dynamic> json = jsonDecode(event);
-        for (Function(Map<String, dynamic>) listener in _listeners) {
-          listener(json);
-        }
-      });
+      if (socket?.socketHandlerState.status == SocketStatus.connected) {
+        socket?.incomingMessagesStream.listen((event) {
+          Map<String, dynamic> json = jsonDecode(event);
+          for (Function(Map<String, dynamic>) listener in _listeners) {
+            listener(json);
+          }
+        });
+
+        _isConnected = true;
+      }
+
+      
     }
     catch (e) {
       _isConnected = false;
-      return _isConnected;
     }
-
-    _isConnected = socket?.socketState.status == SocketStatus.connected;
     return _isConnected;
+    
+  }
+
+  static Future<String> connectEquipment(String device) async {
+    return await deviceAction(device, "connect");
+  }
+
+  static Future<String> disconnectEquipment(String device) async {
+    return await deviceAction(device, "disconnect");
+  }
+
+  static Future<String> deviceAction(String device, String action) async {
+    var (ip, port) = await _getIpAndPort();
+    return post('http://$ip:$port/api/equipment', _postBuilder(device, action, []));
+  }
+
+  static Future<String> switchTab(String tab) async {
+    var (ip, port) = await _getIpAndPort();
+    return post('http://$ip:$port/api/equipment', _postBuilder("application", "switch", [tab]));
+  }
+
+  static const String telescopePark = "park";
+  static const String telescopeUnpark = "unpark";
+  static const String autofocus = "auto-focus";
+  static const String domeOpen = "open";
+  static const String domeClose = "close";
+  static const String guiderStart = "start";
+  static const String guiderStop = "stop";
+
+  static const String equipmentTab = "equipment";
+  static const String skyatlasTab = "skyatlas";
+  static const String framingTab = "framing";
+  static const String flatTab = "flatwizard";
+  static const String sequenceTab = "sequencer";
+  static const String imagingTab = "imaging";
+  static const String optionsTab = "options";
+  static const String pluginsTab = "plugins";
+
+  static String _postBuilder(String device, String action, List<String> parameter) {
+    String body = '{"Device": "$device", "Action":"$action", "Parameters": [';
+    for (var i = 0; i < parameter.length; i++) {
+      body += '"${parameter[i]}"';
+      if (i != parameter.length - 1) {
+        body += ',';
+      }
+    }
+    body += ']}';
+    return body;
   }
 }

@@ -48,6 +48,7 @@ dependencies:
   timeline_tile: ^2.0.0
   overlay_support: ^2.1.0
   fl_chart: ^0.68.0
+  mask_text_input_formatter: ^2.9.0
 
 dev_dependencies:
   flutter_test:

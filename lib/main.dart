@@ -1,6 +1,7 @@
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:nina_remote/views/home_view.dart';
 import 'package:nina_remote/widgets/frosted_card.dart';
 import 'package:overlay_support/overlay_support.dart';
@@ -91,6 +92,12 @@ class _ConnectPageState extends State<ConnectPage> {
   final TextEditingController ipController = TextEditingController();
   final TextEditingController portController = TextEditingController();
 
+  final MaskTextInputFormatter ipFormatter = MaskTextInputFormatter(
+      mask: "###.###.###.###",
+      filter: { "#": RegExp(r'[0-9]') },
+      type: MaskAutoCompletionType.lazy
+    );
+
   @override
   void initState() {
     super.initState();
@@ -140,11 +147,15 @@ class _ConnectPageState extends State<ConnectPage> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      "Please enter the connection details to connect to the NINA server.", 
+                      "Connect to your NINA instance", 
                       style: Theme.of(context).textTheme.headlineSmall, 
                       textAlign: TextAlign.center,
                       ),
                   ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+
                   SizedBox(
                     width: 200,
                     child: TextFormField(
@@ -154,8 +165,13 @@ class _ConnectPageState extends State<ConnectPage> {
                       keyboardType: TextInputType.number,
                       textAlign: TextAlign.center,
                       controller: ipController,
-                      decoration: const InputDecoration(
+                      inputFormatters: [
+                        ipFormatter
+                      ],
+                      decoration: InputDecoration(
                         hintText: "IP Address",
+                        fillColor: Theme.of(context).elevatedButtonTheme.style?.backgroundColor?.resolve(<MaterialState>{MaterialState.dragged}),
+                        hoverColor: Theme.of(context).elevatedButtonTheme.style?.overlayColor?.resolve(<MaterialState>{MaterialState.hovered}),
                       ),
                     ),
                   ),
@@ -172,8 +188,10 @@ class _ConnectPageState extends State<ConnectPage> {
                       keyboardType: TextInputType.number,
                       textAlign: TextAlign.center,
                       controller: portController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: "Port",
+                        fillColor: Theme.of(context).elevatedButtonTheme.style?.backgroundColor?.resolve(<MaterialState>{MaterialState.dragged}),
+                        hoverColor: Theme.of(context).elevatedButtonTheme.style?.overlayColor?.resolve(<MaterialState>{MaterialState.hovered}),
                       ),
                     ),
                   ),

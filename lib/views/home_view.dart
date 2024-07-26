@@ -25,20 +25,22 @@ class _HomeViewPagStateState extends State<HomeViewPage> {
   late final Future connectFuture;
 
   Future connect() async {
-    if (!await ApiHelper.connect()) {
+    if (await ApiHelper.connect()) {
+      ApiHelper.socket?.socketHandlerStateStream.listen((event) {
+        if (event.status == SocketStatus.disconnected) {
+          if (mounted) {
+            showNotification(context, NotificationType.error, "Socket disconnected!", 5000);
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const ConnectPage()));
+          }
+        }
+      });
+    }
+    else {
       if (mounted) {
+        showNotification(context, NotificationType.error, "Failed to connect!", 5000);
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const ConnectPage()));
       }
     }
-
-    ApiHelper.socket?.socketHandlerStateStream.listen((event) {
-      if (event.status == SocketStatus.disconnected) {
-        if (mounted) {
-          showNotification(context, NotificationType.error, "Socket disconnected!", 5000);
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const ConnectPage()));
-        }
-      }
-    });
   }
 
   late final List<Widget> views;

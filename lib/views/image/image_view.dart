@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nina_remote/core/api/api_helper.dart';
 import 'package:nina_remote/state_manager.dart';
@@ -150,7 +149,7 @@ class _ImageViewState extends ConsumerState<ImageView> {
                         Padding(
                           padding: const EdgeInsets.fromLTRB(0.0, 20.0, 40.0, 0.0),
                           child: SizedBox(
-                            height: 250.0, 
+                            height: 250.0,
                             child: Graph(data: getHfr(images), gradient: const [Colors.red, Colors.orange], topMargin: 1,)
                           ),
                         ),
@@ -206,20 +205,6 @@ class _ImageViewState extends ConsumerState<ImageView> {
           label: const Text("Refresh"), 
           icon: const Icon(Icons.refresh_outlined),
       ) : null,
-      /* extendBody: false,
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 35.0),
-        child: SizedBox.shrink(
-          child: Slider(
-            value: axisWidth, 
-            min: 100, 
-            max: 700, 
-            onChanged: (newPos) {
-              setState(() => axisWidth = newPos);
-            }
-          ),
-        ),
-      ), */
     );
   }
 

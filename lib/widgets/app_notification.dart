@@ -24,7 +24,7 @@ class InAppNotification extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 4),
+      margin: const EdgeInsets.fromLTRB(4, 4, 4, 4),
       child: SafeArea(
         child: Stack(
           children: [
