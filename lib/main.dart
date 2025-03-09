@@ -94,9 +94,8 @@ class _ConnectPageState extends State<ConnectPage> {
 
   final MaskTextInputFormatter ipFormatter = MaskTextInputFormatter(
       mask: "###.###.###.###",
-      filter: { "#": RegExp(r'[0-9]') },
-      type: MaskAutoCompletionType.lazy
-    );
+      filter: {"#": RegExp(r'[0-9]')},
+      type: MaskAutoCompletionType.lazy);
 
   @override
   void initState() {
@@ -128,11 +127,9 @@ class _ConnectPageState extends State<ConnectPage> {
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/background-astronomy.jpg'),
-            fit: BoxFit.cover
-          )
-        ),
+            image: DecorationImage(
+                image: AssetImage('assets/images/background-astronomy.jpg'),
+                fit: BoxFit.cover)),
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(8.0),
@@ -147,15 +144,14 @@ class _ConnectPageState extends State<ConnectPage> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      "Connect to your NINA instance", 
-                      style: Theme.of(context).textTheme.headlineSmall, 
+                      "Connect to your NINA instance",
+                      style: Theme.of(context).textTheme.headlineSmall,
                       textAlign: TextAlign.center,
-                      ),
+                    ),
                   ),
                   const SizedBox(
                     height: 20,
                   ),
-
                   SizedBox(
                     width: 200,
                     child: TextFormField(
@@ -165,21 +161,25 @@ class _ConnectPageState extends State<ConnectPage> {
                       keyboardType: TextInputType.number,
                       textAlign: TextAlign.center,
                       controller: ipController,
-                      inputFormatters: [
-                        ipFormatter
-                      ],
+                      inputFormatters: [ipFormatter],
                       decoration: InputDecoration(
                         hintText: "IP Address",
-                        fillColor: Theme.of(context).elevatedButtonTheme.style?.backgroundColor?.resolve(<MaterialState>{MaterialState.dragged}),
-                        hoverColor: Theme.of(context).elevatedButtonTheme.style?.overlayColor?.resolve(<MaterialState>{MaterialState.hovered}),
+                        fillColor: Theme.of(context)
+                            .elevatedButtonTheme
+                            .style
+                            ?.backgroundColor
+                            ?.resolve(<WidgetState>{WidgetState.dragged}),
+                        hoverColor: Theme.of(context)
+                            .elevatedButtonTheme
+                            .style
+                            ?.overlayColor
+                            ?.resolve(<WidgetState>{WidgetState.hovered}),
                       ),
                     ),
                   ),
-              
                   const SizedBox(
                     height: 20,
                   ),
-              
                   SizedBox(
                     width: 200,
                     child: TextFormField(
@@ -190,26 +190,32 @@ class _ConnectPageState extends State<ConnectPage> {
                       controller: portController,
                       decoration: InputDecoration(
                         hintText: "Port",
-                        fillColor: Theme.of(context).elevatedButtonTheme.style?.backgroundColor?.resolve(<MaterialState>{MaterialState.dragged}),
-                        hoverColor: Theme.of(context).elevatedButtonTheme.style?.overlayColor?.resolve(<MaterialState>{MaterialState.hovered}),
+                        fillColor: Theme.of(context)
+                            .elevatedButtonTheme
+                            .style
+                            ?.backgroundColor
+                            ?.resolve(<WidgetState>{WidgetState.dragged}),
+                        hoverColor: Theme.of(context)
+                            .elevatedButtonTheme
+                            .style
+                            ?.overlayColor
+                            ?.resolve(<WidgetState>{WidgetState.hovered}),
                       ),
                     ),
                   ),
-              
                   const SizedBox(
                     height: 30,
                   ),
-              
                   SizedBox(
                     width: 250,
                     child: ElevatedButton(
                       child: const Text("Connect"),
                       onPressed: () {
-                        connectAndSave(ipController.text, portController.text, context);
+                        connectAndSave(
+                            ipController.text, portController.text, context);
                       },
                     ),
                   ),
-
                   const SizedBox(
                     height: 20,
                   )
@@ -221,15 +227,15 @@ class _ConnectPageState extends State<ConnectPage> {
       ),
     );
   }
-  
+
   void connectAndSave(String ipAddress, String port, BuildContext context) {
     SharedPreferences.getInstance().then((prefs) {
       prefs.setString('saved-ip', ipController.text);
       prefs.setInt('saved-port', int.parse(portController.text));
       Navigator.pushReplacement<void, void>(
-        context,
-        MaterialPageRoute(builder: (context) => HomeViewPage(ip: ipAddress, port: port))
-      );
+          context,
+          MaterialPageRoute(
+              builder: (context) => HomeViewPage(ip: ipAddress, port: port)));
     });
   }
 }

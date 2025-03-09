@@ -55,7 +55,7 @@ class CameraView extends ConsumerStatefulWidget {
   ConsumerState<CameraView> createState() => _CameraViewState();
 }
 
-class _CameraViewState extends ConsumerState<CameraView> with AutomaticKeepAliveClientMixin{
+class _CameraViewState extends ConsumerState<CameraView> with AutomaticKeepAliveClientMixin {
 
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
   Timer? _timer;

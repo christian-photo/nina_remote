@@ -2,15 +2,20 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:nina_remote/views/equipment/camera.dart';
 import 'package:nina_remote/views/image/image_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:websocket_universal/websocket_universal.dart';
 
 class ApiHelper {
-
   static bool _isConnected = false;
   static IWebSocketHandler? socket;
   static final List<Function(Map<String, dynamic>)> _listeners = [];
+
+  static Future<String> getApiUrl() async {
+    var (ip, port) = await _getIpAndPort();
+    return 'http://$ip:$port/v2/api';
+  }
 
   static Future<(String, String)> _getIpAndPort() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -24,14 +29,8 @@ class ApiHelper {
     return response.body;
   }
 
-  static Future<String> post(String url, String body) async {
-    var response = await http.post(Uri.parse(url), body: body);
-    return response.body;
-  }
-
-  static Future<String> getEquipment(String property, [String parameter = '', String index = '']) async {
-    var (ip, port) = await _getIpAndPort();
-    return get('http://$ip:$port/api/equipment?property=$property&parameter=$parameter&index=$index');
+  static Future<String> getEquipmentInfo(String equipment) async {
+    return get('${await getApiUrl()}/equipment/$equipment/info');
   }
 
   static Future<String> getSequence() async {
@@ -41,26 +40,31 @@ class ApiHelper {
 
   static Future<String> getHistory([int index = -1]) async {
     var (ip, port) = await _getIpAndPort();
-    return await get('http://$ip:$port/api/history?property=list&parameter=$index');
+    return await get(
+        'http://$ip:$port/api/history?property=list&parameter=$index');
   }
 
   static Future<int> getImageCount() async {
     var (ip, port) = await _getIpAndPort();
-    return jsonDecode(await get('http://$ip:$port/api/history?property=count'))["Response"]["Count"] ?? 0;
+    return jsonDecode(await get('http://$ip:$port/api/history?property=count'))[
+            "Response"]["Count"] ??
+        0;
   }
 
   static Future<int> getSocketImageCount() async {
-    var (ip, port) = await _getIpAndPort();
-    return jsonDecode(await get('http://$ip:$port/api/socket-history?property=count'))["Response"]["Count"] ?? 0;
+    return jsonDecode(
+                await get('${await getApiUrl()}/image-history?count=true'))[
+            "Response"]["Count"] ??
+        0;
   }
 
   static Future<CapturedImage> getSocketImage(int index) async {
-    var (ip, port) = await _getIpAndPort();
-    Map<String, dynamic> response = jsonDecode(await get('http://$ip:$port/api/socket-history?property=list&parameter=$index'));
+    Map<String, dynamic> response = jsonDecode(
+        await get('${await getApiUrl()}/image-history?index=$index'));
     response = response["Response"];
     Image thumb = await getThumbnail(index.toString());
     return CapturedImage(
-      thumb, 
+      thumb,
       response["Index"],
       response["Stars"],
       response["Filter"],
@@ -103,12 +107,11 @@ class ApiHelper {
   }
 
   static void refreshEventHistory() async {
-    var (ip, port) = await _getIpAndPort();
-
-    Map<String, dynamic> res = jsonDecode(await get('http://$ip:$port/api/socket-history?property=events'));
+    Map<String, dynamic> res =
+        jsonDecode(await get('${await getApiUrl()}/event-history'));
     List<dynamic> events = res["Response"];
     for (var i = 0; i < events.length; i++) {
-      Map<String, dynamic> event = { "Response": events[i] };
+      Map<String, dynamic> event = {"Response": events[i]};
       for (var listener in _listeners) {
         listener(event);
       }
@@ -116,15 +119,15 @@ class ApiHelper {
   }
 
   static Future<Image> getScreenshot() async {
-    var (ip, port) = await _getIpAndPort();
-    Map<String, dynamic> response = jsonDecode(await post('http://$ip:$port/api/equipment', _postBuilder("application", "screenshot", [])));
+    Map<String, dynamic> response =
+        jsonDecode(await get('${await getApiUrl()}/application/screenshot'));
     String image = response["Response"] ?? '';
     return Image.memory(base64Decode(image));
   }
 
-  static Future<Image> getImage(String index, [int quality=-1]) async {
-    var (ip, port) = await _getIpAndPort();
-    Map<String, dynamic> response = jsonDecode(await get('http://$ip:$port/api/equipment?property=image&parameter=$quality&index=$index'));
+  static Future<Image> getImage(String index, [int quality = -1]) async {
+    Map<String, dynamic> response = jsonDecode(
+        await get('${await getApiUrl()}/image/$index?&quality=$quality'));
     String image = response["Response"] ?? '';
     return Image.memory(base64Decode(image));
   }
@@ -153,14 +156,20 @@ class ApiHelper {
     }
 
     var (ip, port) = await _getIpAndPort();
-    
+
     if (useDelay) {
-      Future.delayed(const Duration(milliseconds: 500)); // For UI/UX reasons, otherwise a failed connection would look not good as the screen would just be popping in and out
+      Future.delayed(const Duration(
+          milliseconds:
+              500)); // For UI/UX reasons, otherwise a failed connection would look not good as the screen would just be popping in and out
     }
-    
+
     try {
-      socket = IWebSocketHandler.createClient('ws://$ip:$port/socket', SocketSimpleTextProcessor(), connectionOptions: const SocketConnectionOptions(failedReconnectionAttemptsLimit: 3,));
-    
+      socket = IWebSocketHandler.createClient(
+          'ws://$ip:$port/v2/socket', SocketSimpleTextProcessor(),
+          connectionOptions: const SocketConnectionOptions(
+            failedReconnectionAttemptsLimit: 3,
+          ));
+
       await socket?.connect();
 
       if (socket?.socketHandlerState.status == SocketStatus.connected) {
@@ -173,32 +182,14 @@ class ApiHelper {
 
         _isConnected = true;
       }
-
-      
-    }
-    catch (e) {
+    } catch (e) {
       _isConnected = false;
     }
     return _isConnected;
-    
-  }
-
-  static Future<String> connectEquipment(String device) async {
-    return await deviceAction(device, "connect");
-  }
-
-  static Future<String> disconnectEquipment(String device) async {
-    return await deviceAction(device, "disconnect");
-  }
-
-  static Future<String> deviceAction(String device, String action) async {
-    var (ip, port) = await _getIpAndPort();
-    return post('http://$ip:$port/api/equipment', _postBuilder(device, action, []));
   }
 
   static Future<String> switchTab(String tab) async {
-    var (ip, port) = await _getIpAndPort();
-    return post('http://$ip:$port/api/equipment', _postBuilder("application", "switch", [tab]));
+    return get('${await getApiUrl()}/application/switch-tab?tab=$tab');
   }
 
   static const String telescopePark = "park";
@@ -218,7 +209,8 @@ class ApiHelper {
   static const String optionsTab = "options";
   static const String pluginsTab = "plugins";
 
-  static String _postBuilder(String device, String action, List<String> parameter) {
+  static String _postBuilder(
+      String device, String action, List<String> parameter) {
     String body = '{"Device": "$device", "Action":"$action", "Parameters": [';
     for (var i = 0; i < parameter.length; i++) {
       body += '"${parameter[i]}"';
